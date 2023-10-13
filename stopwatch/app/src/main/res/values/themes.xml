@@ -1,8 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.StopwatchApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">#4D6E4F</item>
+        <item name="colorPrimaryVariant">#8DA955</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">#BDD9EE</item>
+        <item name="colorSecondaryVariant">#5BA8BC</item>
+        <item name="colorOnSecondary">#4D6E4F</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
     </style>
 
     <style name="Theme.StopwatchApp" parent="Base.Theme.StopwatchApp" />
