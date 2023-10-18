@@ -12,7 +12,7 @@
         tools:layout="@layout/home_fragment">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
+            android:id="@+id/action_HomeFragment_to_StopwatchFragment"
             app:destination="@id/SecondFragment" />
     </fragment>
     <fragment
