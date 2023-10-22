@@ -10,7 +10,16 @@
         <item name="colorOnSecondary">#4D6E4F</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="actionBarTheme">@style/Theme.StopwatchApp.AppBarOverlay</item>
+    </style>
+
+    <style name="Theme.StopwatchApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">@android:color/white</item>
     </style>
 
     <style name="Theme.StopwatchApp" parent="Base.Theme.StopwatchApp" />
+
+    <style name="Theme.StopwatchApp.Dropdown"  parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="colorSurface">@color/white</item>
+    </style>
 </resources>
