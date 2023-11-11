@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
-fun runOnUIThread(runnable: Runnable) {
-    Handler(Looper.getMainLooper()).post(runnable)
+fun runOnUIThread(task: Runnable) {
+    Handler(Looper.getMainLooper()).post(task)
 }
 
 fun runOnCoroutineThread(

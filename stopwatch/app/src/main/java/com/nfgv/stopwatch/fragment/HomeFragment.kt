@@ -26,6 +26,7 @@ import com.nfgv.stopwatch.util.runOnUIThread
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.lang.IndexOutOfBoundsException
+import java.lang.NumberFormatException
 
 class HomeFragment : Fragment() {
     private var _binding: HomeFragmentBinding? = null
@@ -56,6 +57,7 @@ class HomeFragment : Fragment() {
 
         binding.buttonGoogleSignIn.setSize(SIZE_WIDE)
         binding.buttonGoogleSignIn.setOnClickListener { signIn() }
+        binding.inputSheetId.editText?.setText("16o6wVeRQO7KFl0bx6Q5P9QgaHrrGbNinyiqwiwvqwR4")
     }
 
     override fun onResume() {
@@ -84,14 +86,19 @@ class HomeFragment : Fragment() {
                 }.await()
 
                 val runName = result?.get(0)?.get(0).toString()
-                val runStartTime = result?.get(1)?.get(0).toString()
+                val runStartTime = result?.get(1)?.get(0).toString().toLong()
 
                 runOnUIThread { navigateToStopwatchFragment(runName, runStartTime) }
             }
-        } catch (e: IndexOutOfBoundsException) {
-            runOnUIThread { OnscreenNotification(context, R.string.toast_run_data_not_found) }
         } catch (e: Exception) {
-            runOnUIThread { OnscreenNotification(context, R.string.toast_connection_failed) }
+            when (e) {
+                is IndexOutOfBoundsException, is NumberFormatException -> {
+                    runOnUIThread { OnscreenNotification(context, R.string.toast_run_data_invalid) }
+                }
+                else -> {
+                    runOnUIThread { OnscreenNotification(context, R.string.toast_connection_failed) }
+                }
+            }
         } finally {
             runOnUIThread { progressDialog.dismiss() }
         }
@@ -133,11 +140,11 @@ class HomeFragment : Fragment() {
         )
     }
 
-    private fun navigateToStopwatchFragment(runName: String?, runStartTime: String?) {
+    private fun navigateToStopwatchFragment(runName: String?, runStartTime: Long) {
         val args = Bundle().also {
             it.putString("sheetId", binding.inputSheetId.editText?.text.toString())
             it.putString("stopperId", binding.inputStopperId.editText?.text.toString())
-            it.putString("runStartTime", runStartTime)
+            it.putLong("runStartTime", runStartTime)
             it.putString("runName", runName)
         }
 
