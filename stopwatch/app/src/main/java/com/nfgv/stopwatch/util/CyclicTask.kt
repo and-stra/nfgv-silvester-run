@@ -16,6 +16,10 @@ class CyclicTask(private val interval: Long) {
         timer.scheduleAtFixedRate(timerTask, 0, interval)
     }
 
+    fun cancel() {
+        timer.cancel()
+    }
+
     fun stop() {
         timer.cancel()
         timer.purge()

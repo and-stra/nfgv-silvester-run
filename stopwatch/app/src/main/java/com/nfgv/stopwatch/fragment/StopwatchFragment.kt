@@ -15,23 +15,24 @@ import com.nfgv.stopwatch.component.OnscreenNotification
 import com.nfgv.stopwatch.component.extension.flash
 import com.nfgv.stopwatch.component.extension.triggerVibrate
 import com.nfgv.stopwatch.databinding.StopwatchFragmentBinding
-import com.nfgv.stopwatch.service.GoogleSheetService
+import com.nfgv.stopwatch.service.FetchTimeResultsService
+import com.nfgv.stopwatch.service.PublishTimestampService
 import com.nfgv.stopwatch.util.CyclicTask
 import com.nfgv.stopwatch.util.runOnCoroutineThread
 import com.nfgv.stopwatch.util.runOnUIThread
 import com.nfgv.stopwatch.util.toCET
 import com.nfgv.stopwatch.util.toHHMMSS
 import com.nfgv.stopwatch.util.toHHMMSSs
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 
 class StopwatchFragment : Fragment() {
     private var _binding: StopwatchFragmentBinding? = null
 
     private val binding get() = _binding!!
-    private val googleSheetService = GoogleSheetService.instance
+    private val publishTimestampService = PublishTimestampService.instance
+    private val fetchTimeResultsService = FetchTimeResultsService.instance
     private val stopwatchTimerTask = CyclicTask(100L)
     private val timeResultFetchTask = CyclicTask(1200L)
+    private val timestampPublishTask = CyclicTask(1200L)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,8 +53,9 @@ class StopwatchFragment : Fragment() {
 
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        stopwatchTimerTask.start { updateTime(runStartTime) }
+        stopwatchTimerTask.start { updateStopwatchTime(runStartTime) }
         timeResultFetchTask.start { fetchTimeResults(sheetId) }
+        timestampPublishTask.start { publishTimestampService.publish(sheetId, stopperId) }
 
         val currentTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
         if (currentTheme == Configuration.UI_MODE_NIGHT_YES) {
@@ -63,7 +65,7 @@ class StopwatchFragment : Fragment() {
         }
 
         binding.buttonStopTime.setOnClickListener {
-            runOnCoroutineThread { stopTime(sheetId, stopperId) }
+            runOnCoroutineThread { stopTime() }
             binding.buttonStopTime.flash()
             binding.buttonStopTime.triggerVibrate()
         }
@@ -74,10 +76,11 @@ class StopwatchFragment : Fragment() {
 
         stopwatchTimerTask.stop()
         timeResultFetchTask.stop()
+        timestampPublishTask.cancel()
         _binding = null
     }
 
-    private fun updateTime(runStartTime: Long) {
+    private fun updateStopwatchTime(runStartTime: Long) {
         val timeElapsed = System.currentTimeMillis() - runStartTime
         var text = "Startzeit: ${runStartTime.toCET().toHHMMSS()}"
 
@@ -92,13 +95,9 @@ class StopwatchFragment : Fragment() {
         }
     }
 
-    private suspend fun stopTime(sheetId: String, stopperId: String) {
+    private fun stopTime() {
         try {
-            coroutineScope {
-                googleSheetService.appendValues(
-                    sheetId, "$stopperId!A:A", listOf(listOf(System.currentTimeMillis()))
-                )
-            }
+            publishTimestampService.queue(System.currentTimeMillis())
         } catch (e: Exception) {
             runOnUIThread {
                 OnscreenNotification(requireContext(), R.string.toast_connection_failed)
@@ -109,16 +108,8 @@ class StopwatchFragment : Fragment() {
     private fun fetchTimeResults(sheetId: String) {
         runOnCoroutineThread {
             try {
-                coroutineScope {
-                    val result = async {
-                        googleSheetService.readValues(sheetId, "Laufzeiten!C:C")
-                    }.await()
-
-                    val items = result?.subList(1, result.size)?.mapIndexed { index, sublist ->
-                        "${index + 1}    ${sublist[0]}"
-                    }?.toTypedArray() ?: emptyArray()
-
-                    updateTimeResults(items)
+                runOnCoroutineThread {
+                    updateTimeResults(fetchTimeResultsService.fetch(sheetId))
                 }
             } catch (e: Exception) {
                 updateTimeResults(emptyArray())
@@ -126,10 +117,10 @@ class StopwatchFragment : Fragment() {
         }
     }
 
-    private fun updateTimeResults(items: Array<String>) {
+    private fun updateTimeResults(results: Array<String>) {
         runOnUIThread {
             if (context != null) {
-                val adapter = ArrayAdapter(requireContext(), R.layout.listview_item, items)
+                val adapter = ArrayAdapter(requireContext(), R.layout.listview_item, results)
                 binding.listviewTimeResults.adapter = adapter
             }
         }
