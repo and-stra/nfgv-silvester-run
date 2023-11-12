@@ -49,7 +49,7 @@ class HomeFragment : Fragment() {
 
         registerSignInResultLauncher()
 
-        if (googleSignInService.isSignedIn(this.requireContext())) {
+        if (googleSignInService.isSignedIn(requireContext())) {
             onSignIn()
         }
 
@@ -72,7 +72,7 @@ class HomeFragment : Fragment() {
     }
 
     private suspend fun connectGoogleSheetsClient() {
-        val context = this.requireContext()
+        val context = requireContext()
         val sheetId = binding.inputSheetId.editText?.text.toString()
         val progressDialog = ProgressDialog(context)
 
@@ -105,11 +105,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun setStopperIdDropdownItems() {
-        val context = this.requireContext()
         val stopperIdItems = resources.getStringArray(R.array.home_stopper_id_items)
-        val arrayAdapter = ArrayAdapter(context, R.layout.dropdown_item, stopperIdItems)
+        val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, stopperIdItems)
 
-        binding.inputStopperIdAutocompleteView.setAdapter(arrayAdapter)
+        binding.inputStopperIdAutocompleteView.setAdapter(adapter)
     }
 
     private fun registerSignInResultLauncher() {
@@ -125,7 +124,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun onSignIn() {
-        val signedIn = googleSignInService.isSignedIn(this.requireContext())
+        val signedIn = googleSignInService.isSignedIn(requireContext())
 
         binding.buttonGoogleSignIn.isVisible = !signedIn
         binding.buttonGo.isVisible = signedIn
@@ -134,7 +133,7 @@ class HomeFragment : Fragment() {
     private fun signIn() {
         signInResultLauncher?.launch(
             googleSignInService.requestSignIn(
-                this.requireContext(),
+                requireContext(),
                 Scope(SPREADSHEETS)
             ).signInIntent
         )
