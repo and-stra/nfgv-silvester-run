@@ -47,28 +47,49 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initView()
         registerSignInResultLauncher()
-
-        if (googleSignInService.isSignedIn(requireContext())) {
-            onSignIn()
-        }
-
-        binding.buttonGo.setOnClickListener { runOnCoroutineThread { connectGoogleSheetsClient() } }
-
-        binding.buttonGoogleSignIn.setSize(SIZE_WIDE)
-        binding.buttonGoogleSignIn.setOnClickListener { signIn() }
-        binding.inputSheetId.editText?.setText("16o6wVeRQO7KFl0bx6Q5P9QgaHrrGbNinyiqwiwvqwR4")
+        registerListeners()
+        trySignInExistingAccount()
     }
 
     override fun onResume() {
         super.onResume()
 
-        setStopperIdDropdownItems()
+        initStopperIdDropdownItems()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+    
+    private fun initView() {
+        binding.buttonGoogleSignIn.setSize(SIZE_WIDE)
+        binding.inputSheetId.editText?.setText("16o6wVeRQO7KFl0bx6Q5P9QgaHrrGbNinyiqwiwvqwR4")
+    }
+
+    private fun registerSignInResultLauncher() {
+        signInResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                googleSignInService.signIn(result.data)
+
+                onSignIn()
+            }
+        }
+    }
+
+    private fun registerListeners() {
+        binding.buttonGo.setOnClickListener { runOnCoroutineThread { connectGoogleSheetsClient() } }
+        binding.buttonGoogleSignIn.setOnClickListener { startSignInFlow() }
+    }
+
+    private fun trySignInExistingAccount() {
+        if (googleSignInService.isSignedIn(requireContext())) {
+            onSignIn()
+        }
     }
 
     private suspend fun connectGoogleSheetsClient() {
@@ -104,23 +125,20 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setStopperIdDropdownItems() {
+    private fun initStopperIdDropdownItems() {
         val stopperIdItems = resources.getStringArray(R.array.home_stopper_id_items)
         val adapter = ArrayAdapter(requireContext(), R.layout.dropdown_item, stopperIdItems)
 
         binding.inputStopperIdAutocompleteView.setAdapter(adapter)
     }
 
-    private fun registerSignInResultLauncher() {
-        signInResultLauncher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
-        ) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                googleSignInService.signIn(result.data)
-
-                onSignIn()
-            }
-        }
+    private fun startSignInFlow() {
+        signInResultLauncher?.launch(
+            googleSignInService.requestSignIn(
+                requireContext(),
+                Scope(SPREADSHEETS)
+            ).signInIntent
+        )
     }
 
     private fun onSignIn() {
@@ -130,21 +148,12 @@ class HomeFragment : Fragment() {
         binding.buttonGo.isVisible = signedIn
     }
 
-    private fun signIn() {
-        signInResultLauncher?.launch(
-            googleSignInService.requestSignIn(
-                requireContext(),
-                Scope(SPREADSHEETS)
-            ).signInIntent
-        )
-    }
-
     private fun navigateToStopwatchFragment(runName: String?, runStartTime: Long) {
-        val args = Bundle().also {
-            it.putString("sheetId", binding.inputSheetId.editText?.text.toString())
-            it.putString("stopperId", binding.inputStopperId.editText?.text.toString())
-            it.putLong("runStartTime", runStartTime)
-            it.putString("runName", runName)
+        val args = Bundle().apply {
+            putString("sheetId", binding.inputSheetId.editText?.text.toString())
+            putString("stopperId", binding.inputStopperId.editText?.text.toString())
+            putLong("runStartTime", runStartTime)
+            putString("runName", runName)
         }
 
         findNavController().navigate(R.id.action_HomeFragment_to_StopwatchFragment, args)

@@ -8,7 +8,6 @@
     <string-array name="home_stopper_id_items">
         <item>Zeitnehmer 1</item>
         <item>Zeitnehmer 2</item>
-        <item>Zeitnehmer 3</item>
     </string-array>
     <string name="home_sheets_id">Google Sheets ID</string>
     <string name="stopwatch_stop">Stop</string>

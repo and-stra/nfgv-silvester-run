@@ -44,31 +44,10 @@ class StopwatchFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val sheetId = arguments?.getString("sheetId").orEmpty()
-        val stopperId = arguments?.getString("stopperId").orEmpty()
-        val runName = arguments?.getString("runName").orEmpty()
-        val runStartTime = arguments?.getLong("runStartTime") ?: 0L
 
-        (activity as AppCompatActivity).supportActionBar?.title = runName
-
-        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        stopwatchTimerTask.start { updateStopwatchTime(runStartTime) }
-        timeResultFetchTask.start { fetchTimeResults(sheetId) }
-        timestampPublishTask.start { publishTimestampService.publish(sheetId, stopperId) }
-
-        val currentTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        if (currentTheme == Configuration.UI_MODE_NIGHT_YES) {
-            binding.buttonStopTime.setBackgroundColor(Color.WHITE)
-        } else {
-            binding.buttonStopTime.setBackgroundColor(Color.BLACK)
-        }
-
-        binding.buttonStopTime.setOnClickListener {
-            runOnCoroutineThread { stopTime() }
-            binding.buttonStopTime.flash()
-            binding.buttonStopTime.triggerVibrate()
-        }
+        initView()
+        startBackgroundTasks()
+        registerListeners()
     }
 
     override fun onDestroyView() {
@@ -78,6 +57,40 @@ class StopwatchFragment : Fragment() {
         timeResultFetchTask.stop()
         timestampPublishTask.cancel()
         _binding = null
+    }
+
+    private fun initView() {
+        // set action bar title
+        (activity as AppCompatActivity).supportActionBar?.title = arguments?.getString("runName").orEmpty()
+
+        // disable screen timeout
+        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        // set view background color
+        val currentTheme = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        if (currentTheme == Configuration.UI_MODE_NIGHT_YES) {
+            binding.buttonStopTime.setBackgroundColor(Color.WHITE)
+        } else {
+            binding.buttonStopTime.setBackgroundColor(Color.BLACK)
+        }
+    }
+
+    private fun startBackgroundTasks() {
+        val sheetId = arguments?.getString("sheetId").orEmpty()
+        val stopperId = arguments?.getString("stopperId").orEmpty()
+        val runStartTime = arguments?.getLong("runStartTime") ?: 0L
+
+        stopwatchTimerTask.start { updateStopwatchTime(runStartTime) }
+        timeResultFetchTask.start { fetchTimeResults(sheetId) }
+        timestampPublishTask.start { publishTimestampService.publish(sheetId, stopperId) }
+    }
+
+    private fun registerListeners() {
+        binding.buttonStopTime.setOnClickListener {
+            runOnCoroutineThread { stopTime() }
+            binding.buttonStopTime.flash()
+            binding.buttonStopTime.triggerVibrate()
+        }
     }
 
     private fun updateStopwatchTime(runStartTime: Long) {
@@ -106,14 +119,12 @@ class StopwatchFragment : Fragment() {
     }
 
     private fun fetchTimeResults(sheetId: String) {
-        runOnCoroutineThread {
-            try {
-                runOnCoroutineThread {
-                    updateTimeResults(fetchTimeResultsService.fetch(sheetId))
-                }
-            } catch (e: Exception) {
-                updateTimeResults(emptyArray())
+        try {
+            runOnCoroutineThread {
+                updateTimeResults(fetchTimeResultsService.fetch(sheetId))
             }
+        } catch (e: Exception) {
+            updateTimeResults(emptyArray())
         }
     }
 

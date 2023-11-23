@@ -19,8 +19,6 @@ class FetchTimeResultsService private constructor() {
                     googleSheetService.readValues(sheetId, "Laufzeiten!C:C")
                 }.await()
 
-                println(result?.subList(1, result.size))
-
                 return@async result?.subList(1, result.size)?.mapIndexed { index, sublist ->
                     "${index + 1}    ${if (sublist.isEmpty()) "--:--:--.-" else sublist[0]}"
                 }?.toTypedArray() ?: emptyArray()

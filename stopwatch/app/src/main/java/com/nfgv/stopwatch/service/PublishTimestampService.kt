@@ -31,7 +31,9 @@ class PublishTimestampService private constructor() {
                     queuedTimestamps.clear()
                 }
 
-                googleSheetService.appendValues(sheetId, "$stopperId!A:A", timestampsToPublish)
+                if (timestampsToPublish.isNotEmpty()) {
+                    googleSheetService.appendValues(sheetId, "$stopperId!A:A", timestampsToPublish)
+                }
             }
         }
     }

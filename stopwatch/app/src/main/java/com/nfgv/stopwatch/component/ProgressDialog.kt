@@ -8,9 +8,9 @@ class ProgressDialog(private val context: Context) {
     private var progressDialog: AlertDialog? = null
 
     private fun build() {
-        val builder = AlertDialog.Builder(context).also {
-            it.setView(R.layout.progress_dialog)
-            it.setCancelable(false)
+        val builder = AlertDialog.Builder(context).apply {
+            setView(R.layout.progress_dialog)
+            setCancelable(false)
         }
 
         progressDialog = builder.create()
