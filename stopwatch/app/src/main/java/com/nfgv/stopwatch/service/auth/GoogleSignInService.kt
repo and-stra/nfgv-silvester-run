@@ -1,4 +1,4 @@
-package com.nfgv.stopwatch.service
+package com.nfgv.stopwatch.service.auth
 
 import android.content.Context
 import android.content.Intent

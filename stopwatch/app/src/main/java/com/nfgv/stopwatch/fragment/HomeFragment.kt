@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.SignInButton.SIZE_WIDE
 import com.google.android.gms.common.api.Scope
@@ -19,8 +20,10 @@ import com.nfgv.stopwatch.R
 import com.nfgv.stopwatch.component.OnscreenNotification
 import com.nfgv.stopwatch.component.ProgressDialog
 import com.nfgv.stopwatch.databinding.HomeFragmentBinding
-import com.nfgv.stopwatch.service.GoogleSheetService
-import com.nfgv.stopwatch.service.GoogleSignInService
+import com.nfgv.stopwatch.service.sheets.GoogleSheetService
+import com.nfgv.stopwatch.service.auth.GoogleSignInService
+import com.nfgv.stopwatch.service.persistence.CacheDataStoreService
+import com.nfgv.stopwatch.util.Constants
 import com.nfgv.stopwatch.util.runOnCoroutineThread
 import com.nfgv.stopwatch.util.runOnUIThread
 import kotlinx.coroutines.async
@@ -35,6 +38,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val googleSignInService = GoogleSignInService.instance
     private val googleSheetService = GoogleSheetService.instance
+    private val cacheDataStoreService = CacheDataStoreService.instance
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -53,20 +57,28 @@ class HomeFragment : Fragment() {
         trySignInExistingAccount()
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        initStopperIdDropdownItems()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-    
+
     private fun initView() {
+        val context = requireContext()
+
+        runOnCoroutineThread {
+            val stopperIdIndex = cacheDataStoreService.readInt(context, Constants.STOPPER_ID_INDEX_KEY) ?: 0
+            val sheetId = cacheDataStoreService.readString(context, Constants.SHEET_ID_KEY).orEmpty()
+
+            runOnUIThread {
+                initStopperIdDropdownItems()
+                binding.inputStopperIdAutocompleteView.setText(
+                    binding.inputStopperIdAutocompleteView.adapter.getItem(stopperIdIndex).toString(),
+                    false
+                )
+                binding.inputSheetId.editText?.setText(sheetId)
+            }
+        }
         binding.buttonGoogleSignIn.setSize(SIZE_WIDE)
-        binding.inputSheetId.editText?.setText("16o6wVeRQO7KFl0bx6Q5P9QgaHrrGbNinyiqwiwvqwR4")
     }
 
     private fun registerSignInResultLauncher() {
@@ -82,6 +94,24 @@ class HomeFragment : Fragment() {
     }
 
     private fun registerListeners() {
+        binding.inputStopperIdAutocompleteView.setOnItemClickListener { _, _, stopperIdIndex, _ ->
+            runOnCoroutineThread {
+                cacheDataStoreService.writeInt(
+                    requireContext(),
+                    Constants.STOPPER_ID_INDEX_KEY,
+                    stopperIdIndex
+                )
+            }
+        }
+        binding.inputSheetId.editText?.doAfterTextChanged {
+            runOnCoroutineThread {
+                cacheDataStoreService.writeString(
+                    requireContext(),
+                    Constants.SHEET_ID_KEY,
+                    binding.inputSheetId.editText?.text.toString()
+                )
+            }
+        }
         binding.buttonGo.setOnClickListener { runOnCoroutineThread { connectGoogleSheetsClient() } }
         binding.buttonGoogleSignIn.setOnClickListener { startSignInFlow() }
     }
@@ -103,7 +133,7 @@ class HomeFragment : Fragment() {
         try {
             coroutineScope {
                 val result = async {
-                    googleSheetService.readValues(sheetId, "Laufdaten!B1:B2")
+                    googleSheetService.readValues(sheetId, Constants.RUN_DATA_RANGE)
                 }.await()
 
                 val runName = result?.get(0)?.get(0).toString()
@@ -150,10 +180,10 @@ class HomeFragment : Fragment() {
 
     private fun navigateToStopwatchFragment(runName: String?, runStartTime: Long) {
         val args = Bundle().apply {
-            putString("sheetId", binding.inputSheetId.editText?.text.toString())
-            putString("stopperId", binding.inputStopperId.editText?.text.toString())
-            putLong("runStartTime", runStartTime)
-            putString("runName", runName)
+            putString(Constants.SHEET_ID_KEY, binding.inputSheetId.editText?.text.toString())
+            putString(Constants.STOPPER_ID_KEY, binding.inputStopperId.editText?.text.toString())
+            putLong(Constants.RUN_START_TIME_KEY, runStartTime)
+            putString(Constants.RUN_NAME_KEY, runName)
         }
 
         findNavController().navigate(R.id.action_HomeFragment_to_StopwatchFragment, args)

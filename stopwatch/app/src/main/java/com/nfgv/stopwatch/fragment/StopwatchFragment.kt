@@ -15,8 +15,9 @@ import com.nfgv.stopwatch.component.OnscreenNotification
 import com.nfgv.stopwatch.component.extension.flash
 import com.nfgv.stopwatch.component.extension.triggerVibrate
 import com.nfgv.stopwatch.databinding.StopwatchFragmentBinding
-import com.nfgv.stopwatch.service.FetchTimeResultsService
-import com.nfgv.stopwatch.service.PublishTimestampService
+import com.nfgv.stopwatch.service.sheets.FetchTimeResultsService
+import com.nfgv.stopwatch.service.sheets.PublishTimestampService
+import com.nfgv.stopwatch.util.Constants
 import com.nfgv.stopwatch.util.CyclicTask
 import com.nfgv.stopwatch.util.runOnCoroutineThread
 import com.nfgv.stopwatch.util.runOnUIThread
@@ -31,8 +32,8 @@ class StopwatchFragment : Fragment() {
     private val publishTimestampService = PublishTimestampService.instance
     private val fetchTimeResultsService = FetchTimeResultsService.instance
     private val stopwatchTimerTask = CyclicTask(100L)
-    private val timeResultFetchTask = CyclicTask(1200L)
-    private val timestampPublishTask = CyclicTask(1200L)
+    private val timeResultFetchTask = CyclicTask(1050L)
+    private val timestampPublishTask = CyclicTask(1050L)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,7 +62,8 @@ class StopwatchFragment : Fragment() {
 
     private fun initView() {
         // set action bar title
-        (activity as AppCompatActivity).supportActionBar?.title = arguments?.getString("runName").orEmpty()
+        (activity as AppCompatActivity).supportActionBar?.title =
+            arguments?.getString(Constants.RUN_NAME_KEY).orEmpty()
 
         // disable screen timeout
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -73,12 +75,14 @@ class StopwatchFragment : Fragment() {
         } else {
             binding.buttonStopTime.setBackgroundColor(Color.BLACK)
         }
+
+        binding.textStopperId.text = arguments?.getString(Constants.STOPPER_ID_KEY).orEmpty()
     }
 
     private fun startBackgroundTasks() {
-        val sheetId = arguments?.getString("sheetId").orEmpty()
-        val stopperId = arguments?.getString("stopperId").orEmpty()
-        val runStartTime = arguments?.getLong("runStartTime") ?: 0L
+        val sheetId = arguments?.getString(Constants.SHEET_ID_KEY).orEmpty()
+        val stopperId = arguments?.getString(Constants.STOPPER_ID_KEY).orEmpty()
+        val runStartTime = arguments?.getLong(Constants.RUN_START_TIME_KEY) ?: 0L
 
         stopwatchTimerTask.start { updateStopwatchTime(runStartTime) }
         timeResultFetchTask.start { fetchTimeResults(sheetId) }
@@ -95,7 +99,7 @@ class StopwatchFragment : Fragment() {
 
     private fun updateStopwatchTime(runStartTime: Long) {
         val timeElapsed = System.currentTimeMillis() - runStartTime
-        var text = "Startzeit: ${runStartTime.toCET().toHHMMSS()}"
+        var text = "${R.string.text_start_time} ${runStartTime.toCET().toHHMMSS()}"
 
         if (timeElapsed > 0) {
             text = timeElapsed.toHHMMSSs()

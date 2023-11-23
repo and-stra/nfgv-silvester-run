@@ -1,4 +1,4 @@
-package com.nfgv.stopwatch.service
+package com.nfgv.stopwatch.service.sheets
 
 import android.content.Context
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -6,9 +6,9 @@ import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes.SPREADSHEETS
-import com.google.api.services.sheets.v4.model.AppendValuesResponse
 import com.google.api.services.sheets.v4.model.ValueRange
 import com.nfgv.stopwatch.R
+import com.nfgv.stopwatch.service.auth.GoogleSignInService
 
 object ValueInputOptions {
     const val RAW = "RAW"
@@ -48,10 +48,10 @@ class GoogleSheetService private constructor() {
             ?.getValues()
     }
 
-    fun appendValues(sheetId: String, range: String, values: List<List<Any>>): AppendValuesResponse? {
+    fun appendValues(sheetId: String, range: String, values: List<List<Any>>) {
         val body = ValueRange().setValues(values).setRange(range)
 
-        return sheetsClient?.spreadsheets()?.values()
+        sheetsClient?.spreadsheets()?.values()
             ?.append(sheetId, range, body)
             ?.setValueInputOption(ValueInputOptions.RAW)
             ?.execute()
