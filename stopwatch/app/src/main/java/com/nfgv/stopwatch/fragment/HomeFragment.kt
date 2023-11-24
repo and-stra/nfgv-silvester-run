@@ -22,7 +22,7 @@ import com.nfgv.stopwatch.component.ProgressDialog
 import com.nfgv.stopwatch.databinding.HomeFragmentBinding
 import com.nfgv.stopwatch.service.sheets.GoogleSheetService
 import com.nfgv.stopwatch.service.auth.GoogleSignInService
-import com.nfgv.stopwatch.service.persistence.CacheDataStoreService
+import com.nfgv.stopwatch.service.persistence.PreferencesDataStoreService
 import com.nfgv.stopwatch.util.Constants
 import com.nfgv.stopwatch.util.runOnCoroutineThread
 import com.nfgv.stopwatch.util.runOnUIThread
@@ -38,7 +38,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val googleSignInService = GoogleSignInService.instance
     private val googleSheetService = GoogleSheetService.instance
-    private val cacheDataStoreService = CacheDataStoreService.instance
+    private val preferencesDataStoreService = PreferencesDataStoreService.instance
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -66,8 +66,8 @@ class HomeFragment : Fragment() {
         val context = requireContext()
 
         runOnCoroutineThread {
-            val stopperIdIndex = cacheDataStoreService.readInt(context, Constants.STOPPER_ID_INDEX_KEY) ?: 0
-            val sheetId = cacheDataStoreService.readString(context, Constants.SHEET_ID_KEY).orEmpty()
+            val stopperIdIndex = preferencesDataStoreService.readInt(context, Constants.STOPPER_ID_INDEX_KEY) ?: 0
+            val sheetId = preferencesDataStoreService.readString(context, Constants.SHEET_ID_KEY).orEmpty()
 
             runOnUIThread {
                 initStopperIdDropdownItems()
@@ -96,7 +96,7 @@ class HomeFragment : Fragment() {
     private fun registerListeners() {
         binding.inputStopperIdAutocompleteView.setOnItemClickListener { _, _, stopperIdIndex, _ ->
             runOnCoroutineThread {
-                cacheDataStoreService.writeInt(
+                preferencesDataStoreService.writeInt(
                     requireContext(),
                     Constants.STOPPER_ID_INDEX_KEY,
                     stopperIdIndex
@@ -105,7 +105,7 @@ class HomeFragment : Fragment() {
         }
         binding.inputSheetId.editText?.doAfterTextChanged {
             runOnCoroutineThread {
-                cacheDataStoreService.writeString(
+                preferencesDataStoreService.writeString(
                     requireContext(),
                     Constants.SHEET_ID_KEY,
                     binding.inputSheetId.editText?.text.toString()

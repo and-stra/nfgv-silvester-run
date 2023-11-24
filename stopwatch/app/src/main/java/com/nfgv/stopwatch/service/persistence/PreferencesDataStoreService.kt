@@ -12,21 +12,21 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-class CacheDataStoreService {
-    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "cache")
+class PreferencesDataStoreService {
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "preferences")
 
     companion object {
-        val instance: CacheDataStoreService by lazy {
-            CacheDataStoreService()
+        val instance: PreferencesDataStoreService by lazy {
+            PreferencesDataStoreService()
         }
     }
 
     suspend fun writeInt(context: Context, key: String, value: Int) {
-        context.dataStore.edit { cache -> cache[intPreferencesKey(key)] = value }
+        context.dataStore.edit { preferences -> preferences[intPreferencesKey(key)] = value }
     }
 
     suspend fun writeString(context: Context, key: String, value: String) {
-        context.dataStore.edit { cache -> cache[stringPreferencesKey(key)] = value }
+        context.dataStore.edit { preferences -> preferences[stringPreferencesKey(key)] = value }
     }
 
     suspend fun readInt(context: Context, key: String): Int? {

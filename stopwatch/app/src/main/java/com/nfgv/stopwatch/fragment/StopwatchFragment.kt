@@ -31,9 +31,9 @@ class StopwatchFragment : Fragment() {
     private val binding get() = _binding!!
     private val publishTimestampService = PublishTimestampService.instance
     private val fetchTimeResultsService = FetchTimeResultsService.instance
-    private val stopwatchTimerTask = CyclicTask(100L)
-    private val timeResultFetchTask = CyclicTask(1050L)
-    private val timestampPublishTask = CyclicTask(1050L)
+    private val stopwatchTimerTask = CyclicTask(50L)
+    private val timeResultFetchTask = CyclicTask(1100L)
+    private val timestampPublishTask = CyclicTask(1100L)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,6 +54,7 @@ class StopwatchFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
 
+        destroyView()
         stopwatchTimerTask.stop()
         timeResultFetchTask.stop()
         timestampPublishTask.cancel()
@@ -95,6 +96,10 @@ class StopwatchFragment : Fragment() {
             binding.buttonStopTime.flash()
             binding.buttonStopTime.triggerVibrate()
         }
+    }
+
+    private fun destroyView() {
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
     private fun updateStopwatchTime(runStartTime: Long) {

@@ -3,9 +3,7 @@
     android:id="@+id/text_view_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
+    android:textColor="?android:attr/textColorPrimary"
     android:gravity="center"
     android:padding="16dp"
-    android:textSize="18sp"
-    android:textStyle="bold"
-    android:typeface="monospace" />
+    android:textSize="18sp" />
