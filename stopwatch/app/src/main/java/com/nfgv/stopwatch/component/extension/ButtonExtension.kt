@@ -31,10 +31,10 @@ fun Button.flash() {
 fun Button.triggerVibrate() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         (context.getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager).defaultVibrator.vibrate(
-            VibrationEffect.createOneShot(50, VibrationEffect.EFFECT_HEAVY_CLICK)
+            VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE)
         )
     } else {
         // backwards compatibility for devices with API < 31
-        (context.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(50)
+        (context.getSystemService(VIBRATOR_SERVICE) as Vibrator).vibrate(100)
     }
 }

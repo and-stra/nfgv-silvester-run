@@ -29,8 +29,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:hint="@string/home_stopper_id"
-            android:inputType="none"
-            tools:text="@string/home_stopper_id" />
+            android:inputType="none" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout

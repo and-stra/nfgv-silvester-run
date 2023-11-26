@@ -3,13 +3,19 @@ package com.nfgv.stopwatch.fragment
 import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import com.nfgv.stopwatch.R
 import com.nfgv.stopwatch.component.OnscreenNotification
 import com.nfgv.stopwatch.component.extension.flash
@@ -32,8 +38,8 @@ class StopwatchFragment : Fragment() {
     private val publishTimestampService = PublishTimestampService.instance
     private val fetchTimeResultsService = FetchTimeResultsService.instance
     private val stopwatchTimerTask = CyclicTask(50L)
-    private val timeResultFetchTask = CyclicTask(1100L)
-    private val timestampPublishTask = CyclicTask(1100L)
+    private val timeResultFetchTask = CyclicTask(1200L)
+    private val timestampPublishTask = CyclicTask(1200L)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +52,7 @@ class StopwatchFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initMenu()
         initView()
         startBackgroundTasks()
         registerListeners()
@@ -59,6 +66,23 @@ class StopwatchFragment : Fragment() {
         timeResultFetchTask.stop()
         timestampPublishTask.cancel()
         _binding = null
+    }
+
+    private fun initMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.stopwatch_menu, menu)
+            }
+
+            override fun onMenuItemSelected(item: MenuItem): Boolean {
+                return when (item.itemId) {
+                    R.id.action_about -> {
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun initView() {
@@ -121,6 +145,7 @@ class StopwatchFragment : Fragment() {
         try {
             publishTimestampService.queue(System.currentTimeMillis())
         } catch (e: Exception) {
+            Log.e("StopWatch", "Failed to publish timestamp $e")
             runOnUIThread {
                 OnscreenNotification(requireContext(), R.string.toast_connection_failed)
             }
@@ -128,12 +153,13 @@ class StopwatchFragment : Fragment() {
     }
 
     private fun fetchTimeResults(sheetId: String) {
-        try {
-            runOnCoroutineThread {
+        runOnCoroutineThread {
+            try {
                 updateTimeResults(fetchTimeResultsService.fetch(sheetId))
+            } catch (e: Exception) {
+                Log.e("StopWatch", "Failed to fetch time results $e")
+                updateTimeResults(emptyArray())
             }
-        } catch (e: Exception) {
-            updateTimeResults(emptyArray())
         }
     }
 

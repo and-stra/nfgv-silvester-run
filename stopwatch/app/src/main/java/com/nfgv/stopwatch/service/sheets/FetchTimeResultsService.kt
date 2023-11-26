@@ -24,7 +24,7 @@ class FetchTimeResultsService private constructor() {
                     StringBuilder()
                         .append(String.format("%3d", index + 1))
                         .append("                  ")
-                        .append(if (sublist.isEmpty()) "--:--:--.-" else sublist[0])
+                        .append(if (sublist.isEmpty()) "" else sublist[0])
                         .toString()
                 }?.toTypedArray() ?: emptyArray()
             }.await()

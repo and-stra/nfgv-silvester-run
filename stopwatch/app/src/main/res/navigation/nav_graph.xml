@@ -3,26 +3,37 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/home_fragment">
 
     <fragment
-        android:id="@+id/FirstFragment"
+        android:id="@+id/home_fragment"
         android:name="com.nfgv.stopwatch.fragment.HomeFragment"
-        android:label="@string/first_fragment_label"
+        android:label="@string/app_name"
         tools:layout="@layout/home_fragment">
 
         <action
-            android:id="@+id/action_HomeFragment_to_StopwatchFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_homeFragment_to_stopwatchFragment"
+            app:destination="@id/stopwatch_fragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_aboutFragment"
+            app:destination="@id/aboutFragment" />
     </fragment>
     <fragment
-        android:id="@+id/SecondFragment"
+        android:id="@+id/stopwatch_fragment"
         android:name="com.nfgv.stopwatch.fragment.StopwatchFragment"
-        android:label="@string/second_fragment_label"
+        android:label="@string/app_name"
         tools:layout="@layout/stopwatch_fragment">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_stopwatchFragment_to_homeFragment"
+            app:destination="@id/home_fragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.nfgv.stopwatch.fragment.AboutFragment"
+        android:label="@string/action_about" >
+        <action
+            android:id="@+id/action_aboutFragment_to_homeFragment"
+            app:destination="@id/home_fragment" />
     </fragment>
 </navigation>

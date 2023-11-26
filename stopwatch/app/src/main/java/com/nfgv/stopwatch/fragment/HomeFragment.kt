@@ -5,13 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import com.google.android.gms.common.SignInButton.SIZE_WIDE
 import com.google.android.gms.common.api.Scope
@@ -51,6 +56,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        initMenu()
         initView()
         registerSignInResultLauncher()
         registerListeners()
@@ -60,6 +66,24 @@ class HomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun initMenu() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.home_menu, menu)
+            }
+
+            override fun onMenuItemSelected(item: MenuItem): Boolean {
+                return when (item.itemId) {
+                    R.id.action_about -> {
+                        navigateToAboutFragment()
+                        return true
+                    }
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
     }
 
     private fun initView() {
@@ -186,6 +210,10 @@ class HomeFragment : Fragment() {
             putString(Constants.RUN_NAME_KEY, runName)
         }
 
-        findNavController().navigate(R.id.action_HomeFragment_to_StopwatchFragment, args)
+        findNavController().navigate(R.id.action_homeFragment_to_stopwatchFragment, args)
+    }
+
+    private fun navigateToAboutFragment() {
+        findNavController().navigate(R.id.action_homeFragment_to_aboutFragment)
     }
 }
