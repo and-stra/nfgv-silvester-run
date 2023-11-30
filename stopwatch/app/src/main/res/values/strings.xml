@@ -20,11 +20,15 @@
     <string name="text_stopwatch">00:00:00.0</string>
     <string name="text_start_time">Startzeit:</string>
     <string name="stopper_id_title">Stopper ID:</string>
-    <string name="backup_title">Backup Einträge:</string>
+    <string name="backup_title">Backup:</string>
+    <string name="sheets_connection_title">Sheets Verbindung:</string>
+    <string name="data_source_title">Datenquelle:</string>
     <string name="app_version">Version: 1.0</string>
     <string name="github_link"><a href="https://github.com/and-stra/nfgv-silvester-run">Github</a></string>
     <string name="nfgv_logo">NFGV Logo</string>
     <string name="logo_text">NEIDLINGER\nFREIZEIT UND-\nGENUSSVEREIN</string>
     <string name="about_description">Diese App wurde im Auftrag des Neidlinger Freizeit- und Genussvereins (NFGV) zur Optimierung der Zeitmessung beim Neidlinger Silvesterlauf von Andreas Strasser entwickelt.</string>
     <string name="about_nananana">Nananana!</string>
+    <string name="backup_present">vorhanden</string>
+    <string name="backup_not_present">nicht vorhanden</string>
 </resources>

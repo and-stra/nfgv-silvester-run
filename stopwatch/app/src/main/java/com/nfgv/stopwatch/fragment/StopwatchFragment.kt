@@ -17,10 +17,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import com.nfgv.stopwatch.R
-import com.nfgv.stopwatch.component.OnscreenNotification
 import com.nfgv.stopwatch.component.extension.flash
 import com.nfgv.stopwatch.component.extension.triggerVibrate
 import com.nfgv.stopwatch.databinding.StopwatchFragmentBinding
+import com.nfgv.stopwatch.service.persistence.InternalStorageService
 import com.nfgv.stopwatch.service.sheets.FetchTimeResultsService
 import com.nfgv.stopwatch.service.sheets.PublishTimestampService
 import com.nfgv.stopwatch.util.Constants
@@ -30,6 +30,7 @@ import com.nfgv.stopwatch.util.runOnUIThread
 import com.nfgv.stopwatch.util.toCET
 import com.nfgv.stopwatch.util.toHHMMSS
 import com.nfgv.stopwatch.util.toHHMMSSs
+import java.lang.StringBuilder
 
 class StopwatchFragment : Fragment() {
     private var _binding: StopwatchFragmentBinding? = null
@@ -37,9 +38,11 @@ class StopwatchFragment : Fragment() {
     private val binding get() = _binding!!
     private val publishTimestampService = PublishTimestampService.instance
     private val fetchTimeResultsService = FetchTimeResultsService.instance
+    private val internalStorageService = InternalStorageService.instance
     private val stopwatchTimerTask = CyclicTask(50L)
     private val timeResultFetchTask = CyclicTask(1200L)
     private val timestampPublishTask = CyclicTask(1200L)
+    private val backupTimestamps = mutableListOf<String>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,6 +57,7 @@ class StopwatchFragment : Fragment() {
 
         initMenu()
         initView()
+        readBackupTimestamps()
         startBackgroundTasks()
         registerListeners()
     }
@@ -76,7 +80,8 @@ class StopwatchFragment : Fragment() {
 
             override fun onMenuItemSelected(item: MenuItem): Boolean {
                 return when (item.itemId) {
-                    R.id.action_about -> {
+                    R.id.action_delete_backup -> {
+                        internalStorageService.fileExists(requireContext(), Constants.BACKUP_FILE_NAME_PREFIX)
                         return true
                     }
                     else -> false
@@ -104,13 +109,29 @@ class StopwatchFragment : Fragment() {
         binding.textStopperId.text = arguments?.getString(Constants.STOPPER_ID_KEY).orEmpty()
     }
 
+    private fun readBackupTimestamps() {
+        val fileName = Constants.BACKUP_FILE_NAME_PREFIX + arguments?.getString(
+            Constants.SHEET_ID_KEY
+        ).orEmpty()
+
+        try {
+            val backupRaw = internalStorageService.readFile(requireContext(), fileName)
+
+            backupTimestamps.addAll(backupRaw.split("\n"))
+            binding.textBackup.text = resources.getString(R.string.backup_present)
+        } catch (e: Exception) {
+            binding.textBackup.text = resources.getString(R.string.backup_not_present)
+            Log.w("StopWatch", "Failed to read $fileName $e")
+        }
+    }
+
     private fun startBackgroundTasks() {
         val sheetId = arguments?.getString(Constants.SHEET_ID_KEY).orEmpty()
         val stopperId = arguments?.getString(Constants.STOPPER_ID_KEY).orEmpty()
         val runStartTime = arguments?.getLong(Constants.RUN_START_TIME_KEY) ?: 0L
 
         stopwatchTimerTask.start { updateStopwatchTime(runStartTime) }
-        timeResultFetchTask.start { fetchTimeResults(sheetId) }
+        timeResultFetchTask.start { fetchTimeResults(sheetId, stopperId, runStartTime) }
         timestampPublishTask.start { publishTimestampService.publish(sheetId, stopperId) }
     }
 
@@ -128,7 +149,7 @@ class StopwatchFragment : Fragment() {
 
     private fun updateStopwatchTime(runStartTime: Long) {
         val timeElapsed = System.currentTimeMillis() - runStartTime
-        var text = "${R.string.text_start_time} ${runStartTime.toCET().toHHMMSS()}"
+        var text = "${resources.getString(R.string.text_start_time)} ${runStartTime.toCET().toHHMMSS()}"
 
         if (timeElapsed > 0) {
             text = timeElapsed.toHHMMSSs()
@@ -142,20 +163,25 @@ class StopwatchFragment : Fragment() {
     }
 
     private fun stopTime() {
+        val timestamp = System.currentTimeMillis()
+        val sheetId = arguments?.getString(Constants.SHEET_ID_KEY).orEmpty()
+
+        internalStorageService.appendToFile(
+            requireContext(),
+            Constants.BACKUP_FILE_NAME_PREFIX + sheetId,
+            "${timestamp}\n"
+        )
         try {
-            publishTimestampService.queue(System.currentTimeMillis())
+            publishTimestampService.queue(timestamp)
         } catch (e: Exception) {
             Log.e("StopWatch", "Failed to publish timestamp $e")
-            runOnUIThread {
-                OnscreenNotification(requireContext(), R.string.toast_connection_failed)
-            }
         }
     }
 
-    private fun fetchTimeResults(sheetId: String) {
+    private fun fetchTimeResults(sheetId: String, stopperId: String, runStartTime: Long) {
         runOnCoroutineThread {
             try {
-                updateTimeResults(fetchTimeResultsService.fetch(sheetId))
+                updateTimeResults(fetchTimeResultsService.fetch(sheetId, stopperId), runStartTime)
             } catch (e: Exception) {
                 Log.e("StopWatch", "Failed to fetch time results $e")
                 updateTimeResults(emptyArray())
@@ -163,12 +189,31 @@ class StopwatchFragment : Fragment() {
         }
     }
 
-    private fun updateTimeResults(results: Array<String>) {
+    private fun updateTimeResults(resultsRaw: Array<String>, runStartTime: Long = 0L) {
+        val results = resultsRaw.mapIndexed { index, timestamp ->
+            formatTimeResult(index, timestamp, runStartTime)
+        }
+
         runOnUIThread {
             if (context != null) {
                 val adapter = ArrayAdapter(requireContext(), R.layout.listview_item, results)
                 binding.listviewTimeResults.adapter = adapter
             }
         }
+    }
+
+    private fun formatTimeResult(index: Int, timestamp: String, runStartTime: Long): String {
+        val result = StringBuilder()
+            .append(String.format("%3d", index + 1))
+            .append("                  ")
+
+        try {
+            val timeElapsed = timestamp.toLong() - runStartTime
+            result.append(timeElapsed.toHHMMSSs())
+        } catch (e: NumberFormatException) {
+            result.append(result)
+        }
+
+        return result.toString()
     }
 }

@@ -2,7 +2,6 @@ package com.nfgv.stopwatch.service.sheets
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import java.lang.StringBuilder
 
 class FetchTimeResultsService private constructor() {
     private val googleSheetService = GoogleSheetService.instance
@@ -13,19 +12,15 @@ class FetchTimeResultsService private constructor() {
         }
     }
 
-    suspend fun fetch(sheetId: String): Array<String> {
+    suspend fun fetch(sheetId: String, stopperId: String): Array<String> {
         return coroutineScope {
             return@coroutineScope async {
                 val result = async {
-                    googleSheetService.readValues(sheetId, "Laufzeiten!C:C")
+                    googleSheetService.readValues(sheetId, "$stopperId!A:A")
                 }.await()
 
-                return@async result?.subList(1, result.size)?.mapIndexed { index, sublist ->
-                    StringBuilder()
-                        .append(String.format("%3d", index + 1))
-                        .append("                  ")
-                        .append(if (sublist.isEmpty()) "" else sublist[0])
-                        .toString()
+                return@async result?.subList(1, result.size)?.map { sublist ->
+                    if (sublist.isEmpty()) "" else sublist[0].toString()
                 }?.toTypedArray() ?: emptyArray()
             }.await()
         }

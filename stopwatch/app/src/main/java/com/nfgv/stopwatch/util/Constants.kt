@@ -10,4 +10,7 @@ object Constants {
 
     // sheet ranges
     const val RUN_DATA_RANGE = "Laufdaten!B1:B2"
+
+    // backup
+    const val BACKUP_FILE_NAME_PREFIX = "backup_"
 }

@@ -52,10 +52,10 @@ class AboutFragment : Fragment() {
     }
 
     private fun registerListeners() {
-        binding.logoLayout.setOnClickListener { playNananaSound() }
+        binding.logoLayout.setOnClickListener { playNanananaSound() }
     }
 
-    private fun playNananaSound() {
+    private fun playNanananaSound() {
         try {
             mediaPlayer.stop()
             mediaPlayer.prepare()
