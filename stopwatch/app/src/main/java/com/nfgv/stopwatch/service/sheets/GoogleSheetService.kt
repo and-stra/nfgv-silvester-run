@@ -8,12 +8,10 @@ import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.SheetsScopes.SPREADSHEETS
 import com.google.api.services.sheets.v4.model.ValueRange
 import com.nfgv.stopwatch.R
+import com.nfgv.stopwatch.data.service.ValueInputOptions
 import com.nfgv.stopwatch.service.auth.GoogleSignInService
+import com.nfgv.stopwatch.util.extensions.getApplicationName
 
-object ValueInputOptions {
-    const val RAW = "RAW"
-    const val USER_ENTERED = "USER_ENTERED"
-}
 
 class GoogleSheetService private constructor() {
     private val googleSignInService = GoogleSignInService.instance
@@ -37,7 +35,7 @@ class GoogleSheetService private constructor() {
         val httpTransport = NetHttpTransport()
 
         sheetsClient = Sheets.Builder(httpTransport, jsonFactory, credential)
-            .setApplicationName(context.resources.getString(R.string.app_name))
+            .setApplicationName(context.getApplicationName())
             .build()
     }
 

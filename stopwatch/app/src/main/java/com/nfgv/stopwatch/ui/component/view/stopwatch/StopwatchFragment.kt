@@ -1,4 +1,4 @@
-package com.nfgv.stopwatch.fragment
+package com.nfgv.stopwatch.ui.component.view.stopwatch
 
 import android.content.res.Configuration
 import android.graphics.Color
@@ -17,8 +17,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
 import com.nfgv.stopwatch.R
-import com.nfgv.stopwatch.component.extension.flash
-import com.nfgv.stopwatch.component.extension.triggerVibrate
+import com.nfgv.stopwatch.ui.component.extension.flash
+import com.nfgv.stopwatch.ui.component.extension.triggerVibrate
 import com.nfgv.stopwatch.databinding.StopwatchFragmentBinding
 import com.nfgv.stopwatch.service.persistence.InternalStorageService
 import com.nfgv.stopwatch.service.sheets.FetchTimeResultsService
@@ -111,7 +111,7 @@ class StopwatchFragment : Fragment() {
 
     private fun readBackupTimestamps() {
         val fileName = Constants.BACKUP_FILE_NAME_PREFIX + arguments?.getString(
-            Constants.SHEET_ID_KEY
+            Constants.SHEETS_ID_KEY
         ).orEmpty()
 
         try {
@@ -126,7 +126,7 @@ class StopwatchFragment : Fragment() {
     }
 
     private fun startBackgroundTasks() {
-        val sheetId = arguments?.getString(Constants.SHEET_ID_KEY).orEmpty()
+        val sheetId = arguments?.getString(Constants.SHEETS_ID_KEY).orEmpty()
         val stopperId = arguments?.getString(Constants.STOPPER_ID_KEY).orEmpty()
         val runStartTime = arguments?.getLong(Constants.RUN_START_TIME_KEY) ?: 0L
 
@@ -164,7 +164,7 @@ class StopwatchFragment : Fragment() {
 
     private fun stopTime() {
         val timestamp = System.currentTimeMillis()
-        val sheetId = arguments?.getString(Constants.SHEET_ID_KEY).orEmpty()
+        val sheetId = arguments?.getString(Constants.SHEETS_ID_KEY).orEmpty()
 
         internalStorageService.appendToFile(
             requireContext(),

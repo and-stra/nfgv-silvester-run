@@ -16,7 +16,9 @@
     <string name="stopwatch_stop">Stop</string>
     <string name="connect_to_sheet">Verbinde mit Google Sheets API…</string>
     <string name="toast_run_data_invalid">Laufdaten fehlerhaft</string>
+    <string name="toast_gerstl">Gerstl du homo</string>
     <string name="toast_connection_failed">Verbindung fehlgeschlagen</string>
+    <string name="toast_sign_in_failed">Anmeldevorgang fehlgeschlagen</string>
     <string name="text_stopwatch">00:00:00.0</string>
     <string name="text_start_time">Startzeit:</string>
     <string name="stopper_id_title">Stopper ID:</string>

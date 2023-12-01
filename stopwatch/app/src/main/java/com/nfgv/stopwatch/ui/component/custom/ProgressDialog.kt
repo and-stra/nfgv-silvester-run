@@ -1,4 +1,4 @@
-package com.nfgv.stopwatch.component
+package com.nfgv.stopwatch.ui.component.custom
 
 import android.content.Context
 import androidx.appcompat.app.AlertDialog

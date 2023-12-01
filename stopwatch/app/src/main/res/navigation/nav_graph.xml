@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/home_fragment"
-        android:name="com.nfgv.stopwatch.fragment.HomeFragment"
+        android:name="com.nfgv.stopwatch.ui.component.view.home.HomeFragment"
         android:label="@string/app_name"
         tools:layout="@layout/home_fragment">
 
@@ -20,7 +20,7 @@
     </fragment>
     <fragment
         android:id="@+id/stopwatch_fragment"
-        android:name="com.nfgv.stopwatch.fragment.StopwatchFragment"
+        android:name="com.nfgv.stopwatch.ui.component.view.stopwatch.StopwatchFragment"
         android:label="@string/app_name"
         tools:layout="@layout/stopwatch_fragment">
 
@@ -30,7 +30,7 @@
     </fragment>
     <fragment
         android:id="@+id/aboutFragment"
-        android:name="com.nfgv.stopwatch.fragment.AboutFragment"
+        android:name="com.nfgv.stopwatch.ui.component.view.about.AboutFragment"
         android:label="@string/action_about" >
         <action
             android:id="@+id/action_aboutFragment_to_homeFragment"

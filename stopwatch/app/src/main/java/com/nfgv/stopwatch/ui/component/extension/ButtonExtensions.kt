@@ -1,4 +1,4 @@
-package com.nfgv.stopwatch.component.extension
+package com.nfgv.stopwatch.ui.component.extension
 
 import android.content.Context.VIBRATOR_MANAGER_SERVICE
 import android.content.Context.VIBRATOR_SERVICE

@@ -1,4 +1,4 @@
-package com.nfgv.stopwatch.fragment
+package com.nfgv.stopwatch.ui.component.view.about
 
 import android.media.MediaPlayer
 import android.os.Bundle
