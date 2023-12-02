@@ -16,7 +16,6 @@
     <string name="stopwatch_stop">Stop</string>
     <string name="connect_to_sheet">Verbinde mit Google Sheets API…</string>
     <string name="toast_run_data_invalid">Laufdaten fehlerhaft</string>
-    <string name="toast_gerstl">Gerstl du homo</string>
     <string name="toast_connection_failed">Verbindung fehlgeschlagen</string>
     <string name="toast_sign_in_failed">Anmeldevorgang fehlgeschlagen</string>
     <string name="text_stopwatch">00:00:00.0</string>
@@ -31,6 +30,10 @@
     <string name="logo_text">NEIDLINGER\nFREIZEIT UND-\nGENUSSVEREIN</string>
     <string name="about_description">Diese App wurde im Auftrag des Neidlinger Freizeit- und Genussvereins (NFGV) zur Optimierung der Zeitmessung beim Neidlinger Silvesterlauf von Andreas Strasser entwickelt.</string>
     <string name="about_nananana">Nananana!</string>
+    <string name="source_sheets">Sheets</string>
+    <string name="source_backup">lokales Backup</string>
+    <string name="sheets_connected">verbunden</string>
+    <string name="sheets_disconnected">getrennt</string>
     <string name="backup_present">vorhanden</string>
     <string name="backup_not_present">nicht vorhanden</string>
 </resources>

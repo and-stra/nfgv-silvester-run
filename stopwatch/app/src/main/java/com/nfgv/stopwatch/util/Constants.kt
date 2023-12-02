@@ -1,6 +1,11 @@
 package com.nfgv.stopwatch.util
 
 object Constants {
+    // job intervals in milliseconds
+    const val PUBLISH_TIMESTAMPS_TASK_INTERVAL = 1200L
+    const val FETCH_TIMESTAMPS_TASK_INTERVAL = 1200L
+    const val STOPWATCH_TASK_INTERVAL = 50L
+
     // preferences repository
     const val PREFERENCES_DATA_STORE_NAME = "preferences"
 

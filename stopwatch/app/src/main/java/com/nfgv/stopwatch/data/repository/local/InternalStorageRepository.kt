@@ -1,12 +1,12 @@
-package com.nfgv.stopwatch.service.persistence
+package com.nfgv.stopwatch.data.repository.local
 
 import android.content.Context
 import java.lang.StringBuilder
 
-class InternalStorageService {
+class InternalStorageRepository {
     companion object {
-        val instance: InternalStorageService by lazy {
-            InternalStorageService()
+        val instance: InternalStorageRepository by lazy {
+            InternalStorageRepository()
         }
     }
 

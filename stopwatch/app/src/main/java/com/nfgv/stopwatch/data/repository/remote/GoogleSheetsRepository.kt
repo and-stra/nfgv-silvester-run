@@ -1,12 +1,12 @@
 package com.nfgv.stopwatch.data.repository.remote
 
-import androidx.datastore.preferences.core.stringPreferencesKey
+import com.google.api.services.sheets.v4.model.ValueRange
 import com.nfgv.stopwatch.data.service.ProvideGoogleSheetsClientService
 import com.nfgv.stopwatch.data.domain.response.GoogleSheetsGetApiResponse
+import com.nfgv.stopwatch.data.domain.response.GoogleSheetsPostApiResponse
+import com.nfgv.stopwatch.data.service.ValueInputOptions
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -26,6 +26,29 @@ class GoogleSheetsRepository @Inject constructor(
                     GoogleSheetsGetApiResponse.Ok(result.toData())
                 } catch (e: Exception) {
                     GoogleSheetsGetApiResponse.Error(e.message)
+                }
+            }.await()
+        }
+    }
+
+    suspend fun appendValues(
+        sheetId: String,
+        range: String,
+        values: List<List<Any>>
+    ): GoogleSheetsPostApiResponse {
+        val body = ValueRange().setValues(values).setRange(range)
+
+        return coroutineScope {
+            async {
+                return@async try {
+                    val result = provideSheetsClientService.getClient().spreadsheets()?.values()
+                        ?.append(sheetId, range, body)
+                        ?.setValueInputOption(ValueInputOptions.RAW)
+                        ?.execute()
+
+                    GoogleSheetsPostApiResponse.Ok(result)
+                } catch (e: Exception) {
+                    GoogleSheetsPostApiResponse.Error(e.message)
                 }
             }.await()
         }
