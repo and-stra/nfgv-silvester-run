@@ -1,47 +1,40 @@
 package com.nfgv.stopwatch.data.repository.local
 
 import android.content.Context
+import java.io.FileNotFoundException
 import java.lang.StringBuilder
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class InternalStorageRepository {
-    companion object {
-        val instance: InternalStorageRepository by lazy {
-            InternalStorageRepository()
-        }
-    }
-
-    fun writeFile(
-        context: Context,
-        fileName: String,
-        content: String,
-        accessMode: Int = Context.MODE_PRIVATE
-    ) {
-        context.openFileOutput(fileName, accessMode).use {
+@Singleton
+class InternalStorageRepository @Inject constructor(private val context: Context) {
+    fun writeToFile(fileName: String, content: String, creationMode: Int = Context.MODE_PRIVATE) {
+        context.openFileOutput(fileName, creationMode).use {
             it.write(content.toByteArray())
         }
     }
 
-    fun appendToFile(context: Context, fileName: String, content: String) {
-        writeFile(context, fileName, content, Context.MODE_APPEND)
+    fun appendToFile(fileName: String, content: String) {
+        writeToFile(fileName, content, Context.MODE_APPEND)
     }
 
-    fun readFile(context: Context, fileName: String): String {
-        return context.openFileInput(fileName).bufferedReader().useLines { lines ->
-            lines.fold("") { some, text ->
-                StringBuilder()
-                    .append(some)
-                    .append("\n")
-                    .append(text)
-                    .toString()
+    fun readFile(fileName: String): String? {
+        return try {
+            context.openFileInput(fileName).bufferedReader().useLines { lines ->
+                lines.fold("") { accumulated, line ->
+                    StringBuilder()
+                        .append(accumulated)
+                        .append("\n")
+                        .append(line)
+                        .toString()
+                }
             }
+        } catch (e: FileNotFoundException) {
+            null
         }
     }
 
-    fun deleteFile(context: Context, fileName: String) {
+    fun deleteFile(fileName: String) {
         context.deleteFile(fileName)
-    }
-
-    fun fileExists(context: Context, fileName: String) {
-        println(context.fileList())
     }
 }

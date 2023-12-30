@@ -10,9 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-class StopWatchTask(
-    private val runStartTimestamp: Long
-) {
+class StopWatchTask {
     private var job: Job? = null
 
     private val _resultFlow = MutableSharedFlow<Unit>()

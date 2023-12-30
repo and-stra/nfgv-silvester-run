@@ -5,7 +5,7 @@
     <string name="action_show_backup">anzeigen</string>
     <string name="action_delete_backup">löschen</string>
     <string name="action_upload_backup">hochladen</string>
-    <string name="action_connect_to_sheets">Mit Sheets verbinden</string>
+    <string name="action_fetch_run_start_time">Startzeitstempel laden</string>
     <string name="home_go">Und los!</string>
     <string name="home_stopper_id">Stopper ID</string>
     <string-array name="home_stopper_id_items">
@@ -15,8 +15,10 @@
     <string name="home_sheets_id">Google Sheets ID</string>
     <string name="stopwatch_stop">Stop</string>
     <string name="connect_to_sheet">Verbinde mit Google Sheets API…</string>
-    <string name="toast_run_data_invalid">Laufdaten fehlerhaft</string>
     <string name="toast_connection_failed">Verbindung fehlgeschlagen</string>
+    <string name="toast_backup_upload_done">Backup erfolgreich hochgeladen</string>
+    <string name="toast_backup_upload_failed">Backup Upload fehlgeschlagen</string>
+    <string name="toast_fetch_run_start_time_done">Startzeitstempel gesetzt</string>
     <string name="toast_sign_in_failed">Anmeldevorgang fehlgeschlagen</string>
     <string name="text_stopwatch">00:00:00.0</string>
     <string name="text_start_time">Startzeit:</string>

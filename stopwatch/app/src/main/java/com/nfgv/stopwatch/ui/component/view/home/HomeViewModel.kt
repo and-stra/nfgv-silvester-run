@@ -5,9 +5,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nfgv.stopwatch.auth.service.FindLoggedInAccountService
-import com.nfgv.stopwatch.data.domain.response.GoogleSheetsGetApiResponse
+import com.nfgv.stopwatch.data.domain.response.GoogleSheetsReadDataApiResponse
 import com.nfgv.stopwatch.data.repository.local.PreferencesRepository
-import com.nfgv.stopwatch.data.service.FetchRunDataService
+import com.nfgv.stopwatch.data.service.FetchRunStartTimeService
 import com.nfgv.stopwatch.util.Constants
 import com.nfgv.stopwatch.util.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,17 +20,17 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val preferencesRepository: PreferencesRepository,
     private val findLoggedInAccountService: FindLoggedInAccountService,
-    private val fetchRunDataService: FetchRunDataService
+    private val fetchRunStartTimeService: FetchRunStartTimeService
 ) : ViewModel() {
     private val _stopperId = MutableLiveData("")
     private val _sheetsId = MutableLiveData("")
     private val _isSignedIn = MutableLiveData(false)
-    private val _runData = SingleLiveEvent<GoogleSheetsGetApiResponse>()
+    private val _fetchRunStartTimeResponse = SingleLiveEvent<GoogleSheetsReadDataApiResponse>()
 
     val stopperId: LiveData<String> get() = _stopperId
     val sheetsId: LiveData<String> get() = _sheetsId
     val isSignedIn: LiveData<Boolean> get() = _isSignedIn
-    val runData: LiveData<GoogleSheetsGetApiResponse> get() = _runData
+    val fetchRunStartTimeResponse: LiveData<GoogleSheetsReadDataApiResponse> get() = _fetchRunStartTimeResponse
 
     init {
         _isSignedIn.value = findLoggedInAccountService.findLoggedInAccount() != null
@@ -50,11 +50,11 @@ class HomeViewModel @Inject constructor(
         _isSignedIn.value = findLoggedInAccountService.findLoggedInAccount() != null
     }
 
-    fun fetchRunData() {
+    fun fetchRunStartTime() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
-                fetchRunDataService.fetch(sheetsId.value.orEmpty())
-            }.also { result -> _runData.value = result }
+                fetchRunStartTimeService.fetch(sheetsId.value.orEmpty())
+            }.also { result -> _fetchRunStartTimeResponse.value = result }
         }
     }
 

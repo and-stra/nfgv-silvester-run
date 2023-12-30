@@ -1,6 +1,6 @@
 package com.nfgv.stopwatch.ui.component.view.stopwatch.task
 
-import com.nfgv.stopwatch.data.domain.response.GoogleSheetsGetApiResponse
+import com.nfgv.stopwatch.data.domain.response.GoogleSheetsReadDataApiResponse
 import com.nfgv.stopwatch.data.service.FetchTimestampsService
 import com.nfgv.stopwatch.util.Constants
 import kotlinx.coroutines.CoroutineScope
@@ -19,7 +19,7 @@ class FetchTimestampsTask(
 ) {
     private var job: Job? = null
 
-    private val _resultFlow = MutableSharedFlow<GoogleSheetsGetApiResponse>()
+    private val _resultFlow = MutableSharedFlow<GoogleSheetsReadDataApiResponse>()
 
     val resultFlow = _resultFlow.asSharedFlow()
 

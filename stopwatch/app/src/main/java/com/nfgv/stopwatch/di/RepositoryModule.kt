@@ -1,9 +1,9 @@
 package com.nfgv.stopwatch.di
 
 import android.content.Context
+import com.nfgv.stopwatch.data.repository.local.InternalStorageRepository
 import com.nfgv.stopwatch.data.repository.local.PreferencesRepository
 import com.nfgv.stopwatch.data.repository.remote.GoogleSheetsRepository
-import com.nfgv.stopwatch.data.service.FetchRunDataService
 import com.nfgv.stopwatch.data.service.ProvideGoogleSheetsClientService
 import dagger.Module
 import dagger.Provides
@@ -16,6 +16,11 @@ import dagger.hilt.components.SingletonComponent
 class RepositoryModule {
     @Provides
     fun providePreferencesRepository(@ApplicationContext context: Context) = PreferencesRepository(context)
+
+    @Provides
+    fun provideInternalStorageRepository(
+        @ApplicationContext context: Context
+    ) = InternalStorageRepository(context)
 
     @Provides
     fun provideGoogleSheetsRepository(

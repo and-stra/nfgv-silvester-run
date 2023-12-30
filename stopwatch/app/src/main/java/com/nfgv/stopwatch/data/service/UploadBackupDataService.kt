@@ -6,14 +6,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class PublishTimestampsService @Inject constructor(
+class UploadBackupDataService @Inject constructor(
     private val googleSheetsRepository: GoogleSheetsRepository
 ) {
-    suspend fun publish(
+    suspend fun upload(
         sheetsId: String,
-        stopperId: String,
+        sheetTitle: String,
         timestamps: List<List<Long>>
     ): GoogleSheetsAppendDataApiResponse {
-        return googleSheetsRepository.appendValues(sheetsId, "$stopperId!A:A", timestamps)
+        return googleSheetsRepository.appendValues(sheetsId, "$sheetTitle!A:A", timestamps)
     }
 }

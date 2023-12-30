@@ -4,8 +4,12 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import com.nfgv.stopwatch.R
 
-class MeasuredTimestampsAdapter(context: Context, elements: List<String>) : ArrayAdapter<String>(
-    context,
-    R.layout.listview_item,
-    elements
-)
+class MeasuredTimestampsAdapter(context: Context, elements: List<String>) :
+    ArrayAdapter<String>(context, R.layout.listview_item, elements) {
+
+    fun updateData(newData: List<String>) {
+        clear()
+        addAll(newData)
+        notifyDataSetChanged()
+    }
+}

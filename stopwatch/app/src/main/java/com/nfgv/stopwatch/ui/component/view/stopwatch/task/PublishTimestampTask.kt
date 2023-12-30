@@ -1,5 +1,7 @@
 package com.nfgv.stopwatch.ui.component.view.stopwatch.task
 
+import com.nfgv.stopwatch.data.domain.response.GoogleSheetsAppendDataApiResponse
+import com.nfgv.stopwatch.data.service.BackupTimestampsService
 import com.nfgv.stopwatch.data.service.PublishTimestampsService
 import com.nfgv.stopwatch.util.Constants
 import kotlinx.coroutines.CoroutineScope
@@ -29,7 +31,7 @@ class PublishTimestampTask(
         }
     }
 
-    fun stop() {
+    fun cancel() {
         job?.cancel()
     }
 
@@ -39,21 +41,34 @@ class PublishTimestampTask(
         }
     }
 
-    private fun dequeueAll(): List<List<Long>> {
-        var timestamps = emptyList<List<Long>>()
+    private fun dequeueAll(): List<Long> {
+        var timestamps = emptyList<Long>()
 
         synchronized(queuedTimestamps) {
-            timestamps = queuedTimestamps.map { listOf(it.copy().value) }
+            timestamps = queuedTimestamps.map { it.copy().value }
             queuedTimestamps.clear()
         }
 
         return timestamps
     }
 
+    private fun requeue(timestampsToRequeue: List<Long>) {
+        synchronized(queuedTimestamps) {
+            queuedTimestamps.addAll(0, timestampsToRequeue.map { Timestamp(it) })
+        }
+    }
+
     private suspend fun batchPublishTimestamps() {
         dequeueAll().also { timestampsToPublish ->
             if (timestampsToPublish.isNotEmpty()) {
-                publishTimestampsService.publish(sheetsId, "$stopperId!A:A", timestampsToPublish)
+                val result = publishTimestampsService.publish(
+                    sheetsId,
+                    stopperId,
+                    timestampsToPublish.map { listOf(it) })
+
+                if (result is GoogleSheetsAppendDataApiResponse.Error) {
+                    requeue(timestampsToPublish)
+                }
             }
         }
     }

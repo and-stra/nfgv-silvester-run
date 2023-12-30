@@ -3,18 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.nfgv.stopwatch.ui.main.MainActivity">
     <item
-        android:id="@+id/action_connect_to_sheets"
-        android:title="@string/action_connect_to_sheets"
+        android:id="@+id/action_fetch_run_start_time"
+        android:title="@string/action_fetch_run_start_time"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_backup"
         android:title="@string/action_backup"
         app:showAsAction="never" >
         <menu>
-            <item
-                android:id="@+id/action_show_backup"
-                android:title="@string/action_show_backup"
-                app:showAsAction="never" />
             <item
                 android:id="@+id/action_upload_backup"
                 android:title="@string/action_upload_backup"

@@ -13,7 +13,7 @@ fun Button.flash() {
     this.animate().apply {
         interpolator = AccelerateDecelerateInterpolator()
         duration = 75
-        alpha(0.1f)
+        alpha(0.2f)
         startDelay = 0
         withEndAction {
             animate().apply {

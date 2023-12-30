@@ -7,27 +7,25 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.MenuProvider
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
-import androidx.navigation.fragment.findNavController
 import com.nfgv.stopwatch.R
 import com.nfgv.stopwatch.auth.flow.GoogleSignInFlow
-import com.nfgv.stopwatch.data.domain.response.GoogleSheetsGetApiResponse
+import com.nfgv.stopwatch.data.domain.response.GoogleSheetsReadDataApiResponse
 import com.nfgv.stopwatch.ui.component.custom.ProgressDialog
 import com.nfgv.stopwatch.databinding.HomeFragmentBinding
 import com.nfgv.stopwatch.ui.component.base.BaseFragment
 import com.nfgv.stopwatch.ui.component.view.home.extension.createProgressDialog
 import com.nfgv.stopwatch.ui.component.view.home.extension.createSignInFlow
+import com.nfgv.stopwatch.ui.component.view.home.extension.navigateToAboutFragment
+import com.nfgv.stopwatch.ui.component.view.home.extension.navigateToStopwatchFragmentWithoutRunStartTime
+import com.nfgv.stopwatch.ui.component.view.home.extension.navigateToStopwatchFragmentWithRunStartTime
 import com.nfgv.stopwatch.ui.component.view.home.extension.setStopperIdAdapter
 import com.nfgv.stopwatch.ui.component.view.home.extension.signInWithGoogleAccount
-import com.nfgv.stopwatch.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
-import java.lang.IndexOutOfBoundsException
-import java.lang.NumberFormatException
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment() {
@@ -68,24 +66,15 @@ class HomeFragment : BaseFragment() {
 
         binding.buttonGo.setOnClickListener {
             progressDialog.show()
-            viewModel.fetchRunData()
+            viewModel.fetchRunStartTime()
         }
     }
 
     override fun observeViewModel() {
-        viewModel.runData.observe(this) { result ->
+        viewModel.fetchRunStartTimeResponse.observe(this) { result ->
             when (result) {
-                is GoogleSheetsGetApiResponse.Ok -> {
-                    val runName = result.data[0][0]
-                    val runStartTimestamp = result.data[1][0].toLong()
-
-                    // TODO validate!!!
-
-                    navigateToStopwatchFragment(runName, runStartTimestamp)
-                }
-                is GoogleSheetsGetApiResponse.Error -> {
-                    Toast.makeText(context, R.string.toast_connection_failed, Toast.LENGTH_SHORT).show()
-                }
+                is GoogleSheetsReadDataApiResponse.Ok -> navigateToStopwatchFragmentWithRunStartTime(result)
+                is GoogleSheetsReadDataApiResponse.Error -> navigateToStopwatchFragmentWithoutRunStartTime()
             }
 
             progressDialog.dismiss()
@@ -108,20 +97,5 @@ class HomeFragment : BaseFragment() {
                 }
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
-    }
-
-    private fun navigateToStopwatchFragment(runName: String?, runStartTime: Long) {
-        val args = Bundle().apply {
-            putString(Constants.SHEETS_ID_KEY, viewModel.sheetsId.value)
-            putString(Constants.STOPPER_ID_KEY, viewModel.stopperId.value)
-            putLong(Constants.RUN_START_TIME_KEY, runStartTime)
-            putString(Constants.RUN_NAME_KEY, runName)
-        }
-
-        findNavController().navigate(R.id.action_homeFragment_to_stopwatchFragment, args)
-    }
-
-    private fun navigateToAboutFragment() {
-        findNavController().navigate(R.id.action_homeFragment_to_aboutFragment)
     }
 }

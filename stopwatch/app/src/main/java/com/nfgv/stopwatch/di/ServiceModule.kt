@@ -3,10 +3,12 @@ package com.nfgv.stopwatch.di
 import android.content.Context
 import com.nfgv.stopwatch.auth.service.FindLoggedInAccountService
 import com.nfgv.stopwatch.data.repository.remote.GoogleSheetsRepository
+import com.nfgv.stopwatch.data.service.AddSheetService
 import com.nfgv.stopwatch.data.service.FetchTimestampsService
-import com.nfgv.stopwatch.data.service.FetchRunDataService
+import com.nfgv.stopwatch.data.service.FetchRunStartTimeService
 import com.nfgv.stopwatch.data.service.ProvideGoogleSheetsClientService
 import com.nfgv.stopwatch.data.service.PublishTimestampsService
+import com.nfgv.stopwatch.data.service.UploadBackupDataService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -28,9 +30,9 @@ object ServiceModule {
     ) = ProvideGoogleSheetsClientService(context, findLoggedInAccountService)
 
     @Provides
-    fun provideFetchRunDataService(
+    fun provideFetchRunStartTimeService(
         googleSheetsRepository: GoogleSheetsRepository
-    ) = FetchRunDataService(googleSheetsRepository)
+    ) = FetchRunStartTimeService(googleSheetsRepository)
 
     @Provides
     fun providePublishTimestampsService(
@@ -41,4 +43,14 @@ object ServiceModule {
     fun provideFetchTimestampsService(
         googleSheetsRepository: GoogleSheetsRepository
     ) = FetchTimestampsService(googleSheetsRepository)
+
+    @Provides
+    fun provideAddSheetService(
+        googleSheetsRepository: GoogleSheetsRepository
+    ) = AddSheetService(googleSheetsRepository)
+
+    @Provides
+    fun provideUploadBackupDataService(
+        googleSheetsRepository: GoogleSheetsRepository
+    ) = UploadBackupDataService(googleSheetsRepository)
 }
